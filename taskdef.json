@@ -1,0 +1,22 @@
+{
+  "family": "springboot-ecs-task",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "springboot-container",
+      "image": "<IMAGE_PLACEHOLDER>",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "<ECS_TASK_EXECUTION_ROLE_ARN>"
+}
