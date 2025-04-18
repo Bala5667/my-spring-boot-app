@@ -32,14 +32,13 @@ phases:
       - docker images
 
   post_build:
-  commands:
-    - echo Re-Logging into Amazon ECR before push...
-    - LOGIN_OUTPUT=$(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com)
-    - echo "$LOGIN_OUTPUT"
-    - echo Pushing Docker image to ECR...
-    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest || { echo 'Docker push failed'; exit 1; }
-    - echo Creating imagedefinitions.json for ECS deployment...
-    - printf '[{"name":"springboot-container","imageUri":"%s"}]' "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest" > imagedefinitions.json
+    commands:
+      - echo Re-Logging into Amazon ECR before push...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - echo Pushing Docker image to ECR...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
+      - echo Creating imagedefinitions.json for ECS deployment...
+      - printf '[{"name":"springboot-container","imageUri":"%s"}]' "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest" > imagedefinitions.json
 
 artifacts:
   files:
