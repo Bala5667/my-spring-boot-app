@@ -24,7 +24,7 @@ phases:
       - echo Building Spring Boot application...
       - mvn clean package
       - echo Building Docker image...
-      - docker build -t $REPOSITORY_NAME .
+      - docker build -t $REPOSITORY_NAME -f Dockerfile .
       - docker tag $REPOSITORY_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
 
   post_build:
