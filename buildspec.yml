@@ -16,8 +16,9 @@ phases:
       - echo Installing Docker client...
       - yum install -y docker
       - echo Starting Docker service...
-      - service docker start
-
+      # Use systemctl to start the Docker service
+      - sudo systemctl start docker || sudo dockerd &
+      
   pre_build:
     commands:
       - echo Logging into Amazon ECR...
