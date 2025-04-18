@@ -1,27 +1,38 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_ACCOUNT_ID: 372241483606
+    AWS_REGION: us-east-1
+    REPOSITORY_NAME: springboot-ecs-app
+
 phases:
   install:
+    runtime-versions:
+      java: corretto11
     commands:
       - echo Installing Maven...
       - yum install -y maven
+
   pre_build:
     commands:
       - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
   build:
     commands:
       - echo Building Spring Boot application...
       - mvn clean package
       - echo Building Docker image...
-      - docker build -t springboot-ecs-app .
-      - docker tag springboot-ecs-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-ecs-app:latest
+      - docker build -t $REPOSITORY_NAME .
+      - docker tag $REPOSITORY_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
+
   post_build:
     commands:
       - echo Pushing Docker image to ECR...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-ecs-app:latest
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
       - echo Creating imagedefinitions.json...
-      - printf '[{"name":"springboot-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-ecs-app:latest > imagedefinitions.json
+      - printf '[{"name":"springboot-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest > imagedefinitions.json
 
 artifacts:
   files:
