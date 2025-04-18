@@ -1,25 +1,28 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo Installing Maven...
+      - yum install -y maven
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
+      - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
   build:
     commands:
-      - echo Build started on `date`
+      - echo Building Spring Boot application...
       - mvn clean package
-      - echo Building the Docker image...
+      - echo Building Docker image...
       - docker build -t springboot-ecs-app .
       - docker tag springboot-ecs-app:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-ecs-app:latest
   post_build:
     commands:
-      - echo Pushing the Docker image...
+      - echo Pushing Docker image to ECR...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-ecs-app:latest
-      - echo Writing image definitions file...
+      - echo Creating imagedefinitions.json...
       - printf '[{"name":"springboot-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-ecs-app:latest > imagedefinitions.json
 
 artifacts:
-  files: 
+  files:
     - imagedefinitions.json
-
