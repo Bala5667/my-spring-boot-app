@@ -14,7 +14,7 @@ phases:
       - echo Installing Maven...
       - yum install -y maven
       - echo Installing Docker client...
-      - yum install -y docker  # Just in case (CodeBuild image usually has it, but safe to ensure)
+      - yum install -y docker  # Just in case
 
   pre_build:
     commands:
@@ -28,7 +28,7 @@ phases:
       - echo Building Docker image...
       - docker build -t $REPOSITORY_NAME -f Dockerfile .
       - docker tag $REPOSITORY_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
-      - docker images  # <-- Optional: helps you verify the built images
+      - docker images
 
   post_build:
     commands:
@@ -38,3 +38,5 @@ phases:
       - printf '[{"name":"springboot-container","imageUri":"%s"}]' "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest" > imagedefinitions.json
 
 artifacts:
+  files:
+    - imagedefinitions.json
